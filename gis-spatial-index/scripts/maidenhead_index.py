@@ -294,7 +294,13 @@ def boundary_geojson(locator: str) -> dict:
     }
 
 
-def _find_column(fieldnames: list[str], candidates: set[str]) -> str | None:
+def _error(msg: str) -> None:
+    """エラーメッセージを stderr に JSON 出力して終了する。"""
+    print(json.dumps({"error": msg}, ensure_ascii=False), file=sys.stderr)
+    sys.exit(1)
+
+
+def _detect_column(fieldnames: list[str], candidates: set[str]) -> str | None:
     """CSVヘッダーから候補名に一致するカラムを探す（大文字小文字を区別しない）。"""
     for name in fieldnames:
         if name.strip().lower() in candidates:
@@ -308,18 +314,11 @@ def _batch_encode(input_path: str, output_path: str | None, precision: int) -> N
         reader = csv.DictReader(f)
         fieldnames = reader.fieldnames or []
 
-        lat_col = _find_column(fieldnames, LAT_NAMES)
-        lon_col = _find_column(fieldnames, LON_NAMES)
+        lat_col = _detect_column(fieldnames, LAT_NAMES)
+        lon_col = _detect_column(fieldnames, LON_NAMES)
 
         if not lat_col or not lon_col:
-            print(
-                json.dumps(
-                    {"error": f"CSVに緯度・経度列が見つかりません。対応カラム名: {LAT_NAMES}, {LON_NAMES}"},
-                    ensure_ascii=False,
-                ),
-                file=sys.stderr,
-            )
-            sys.exit(1)
+            _error(f"CSVに緯度・経度列が見つかりません。対応カラム名: {LAT_NAMES}, {LON_NAMES}")
 
         results = []
         errors = 0
@@ -375,17 +374,10 @@ def _batch_decode(input_path: str, output_path: str | None) -> None:
         reader = csv.DictReader(f)
         fieldnames = reader.fieldnames or []
 
-        loc_col = _find_column(fieldnames, LOCATOR_NAMES)
+        loc_col = _detect_column(fieldnames, LOCATOR_NAMES)
 
         if not loc_col:
-            print(
-                json.dumps(
-                    {"error": f"CSVにロケーター列が見つかりません。対応カラム名: {LOCATOR_NAMES}"},
-                    ensure_ascii=False,
-                ),
-                file=sys.stderr,
-            )
-            sys.exit(1)
+            _error(f"CSVにロケーター列が見つかりません。対応カラム名: {LOCATOR_NAMES}")
 
         results = []
         errors = 0
@@ -474,53 +466,24 @@ def main():
     # バッチモード
     if has_batch:
         if not args.operation:
-            print(
-                json.dumps(
-                    {"error": "--input 使用時は --operation (encode/decode) を指定してください。"},
-                    ensure_ascii=False,
-                ),
-                file=sys.stderr,
-            )
-            sys.exit(1)
+            _error("--input 使用時は --operation (encode/decode) を指定してください。")
         try:
             if args.operation == "encode":
                 _batch_encode(args.input, args.output, args.precision)
             else:
                 _batch_decode(args.input, args.output)
         except FileNotFoundError:
-            print(
-                json.dumps({"error": f"ファイルが見つかりません: {args.input}"}, ensure_ascii=False),
-                file=sys.stderr,
-            )
-            sys.exit(1)
+            _error(f"ファイルが見つかりません: {args.input}")
         except Exception as e:
-            print(
-                json.dumps({"error": f"バッチ処理中にエラーが発生しました: {e}"}, ensure_ascii=False),
-                file=sys.stderr,
-            )
-            sys.exit(1)
+            _error(f"バッチ処理中にエラーが発生しました: {e}")
         return
 
     # 単体モード: 引数の排他チェック
     if has_latlon and has_locator:
-        print(
-            json.dumps(
-                {"error": "--lat/--lon と --locator は同時に指定できません。"},
-                ensure_ascii=False,
-            ),
-            file=sys.stderr,
-        )
-        sys.exit(1)
+        _error("--lat/--lon と --locator は同時に指定できません。")
 
     if not has_latlon and not has_locator:
-        print(
-            json.dumps(
-                {"error": "--lat/--lon または --locator を指定してください。"},
-                ensure_ascii=False,
-            ),
-            file=sys.stderr,
-        )
-        sys.exit(1)
+        _error("--lat/--lon または --locator を指定してください。")
 
     try:
         if has_latlon:
@@ -543,14 +506,9 @@ def main():
                 print(json.dumps(result, ensure_ascii=False, indent=2))
 
     except ValueError as e:
-        print(json.dumps({"error": str(e)}, ensure_ascii=False), file=sys.stderr)
-        sys.exit(1)
+        _error(str(e))
     except Exception as e:
-        print(
-            json.dumps({"error": f"変換中にエラーが発生しました: {e}"}, ensure_ascii=False),
-            file=sys.stderr,
-        )
-        sys.exit(1)
+        _error(f"変換中にエラーが発生しました: {e}")
 
 
 if __name__ == "__main__":

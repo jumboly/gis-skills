@@ -122,6 +122,10 @@ def main() -> None:
     args = parser.parse_args()
 
     try:
+        # ビット深度の範囲チェック（_spread_bits が 32 ビットマスクに依存するため）
+        if not (1 <= args.bits <= 32):
+            raise ValueError("--bits は 1〜32 の範囲で指定してください。")
+
         # バッチ処理モード
         if args.input:
             if not args.operation:

@@ -116,10 +116,9 @@ def _neighbor_in_direction(geohash: str, direction: str) -> str:
     # geohash 全体の長さが奇数なら末尾文字は "odd" 位置
     char_type = "odd" if len(geohash) % 2 == 0 else "even"
 
-    # 方向ごとのオフセット（緯度方向 dlat, 経度方向 dlon）
+    # 単純方向のオフセット（緯度方向 dlat, 経度方向 dlon）
     direction_map = {
         "n": (1, 0), "s": (-1, 0), "e": (0, 1), "w": (0, -1),
-        "ne": (1, 1), "nw": (1, -1), "se": (-1, 1), "sw": (-1, -1),
     }
 
     # 複合方向は2段階で処理

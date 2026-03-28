@@ -235,7 +235,7 @@ LON_NAMES = {"lon", "lng", "longitude", "x", "経度"}
 QUADKEY_NAMES = {"quadkey", "qk", "クアッドキー", "code"}
 
 
-def _find_column(fieldnames: list[str], candidates: set[str]) -> str | None:
+def _detect_column(fieldnames: list[str], candidates: set[str]) -> str | None:
     """CSV ヘッダーから候補名に一致するカラムを探す（大文字小文字無視）"""
     lower_map = {f.lower().strip(): f for f in fieldnames}
     for c in candidates:
@@ -250,8 +250,8 @@ def _batch_encode(input_path: str, output_path: str | None, zoom: int) -> None:
         reader = csv.DictReader(f)
         fieldnames = reader.fieldnames or []
 
-        lat_col = _find_column(fieldnames, LAT_NAMES)
-        lon_col = _find_column(fieldnames, LON_NAMES)
+        lat_col = _detect_column(fieldnames, LAT_NAMES)
+        lon_col = _detect_column(fieldnames, LON_NAMES)
         if lat_col is None or lon_col is None:
             _error(f"CSV に緯度・経度列が見つかりません。検出可能な列名: {LAT_NAMES}, {LON_NAMES}")
 
@@ -304,7 +304,7 @@ def _batch_decode(input_path: str, output_path: str | None) -> None:
         reader = csv.DictReader(f)
         fieldnames = reader.fieldnames or []
 
-        qk_col = _find_column(fieldnames, QUADKEY_NAMES)
+        qk_col = _detect_column(fieldnames, QUADKEY_NAMES)
         if qk_col is None:
             _error(f"CSV に Quadkey 列が見つかりません。検出可能な列名: {QUADKEY_NAMES}")
 
