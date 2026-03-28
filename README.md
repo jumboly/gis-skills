@@ -1,11 +1,11 @@
 # gis-skills ![version](https://img.shields.io/badge/version-0.2.0-blue)
 
-GIS（地理情報システム）関連タスクを処理する Claude Code スキル集。座標変換・データ変換・ジオコーディングの3つのスキルで構成される。
+GIS（地理情報システム）関連タスクを処理する Claude Code スキル集。座標変換・ジオコーディングの2つのスキルで構成される。
 
 ## Quick Start
 
 ```bash
-git clone https://github.com/<owner>/gis-skills.git
+git clone https://github.com/jumboly/gis-skills.git
 cd gis-skills
 ./setup.sh --user           # 全プロジェクトで使用可能にする
 .\setup.ps1 -Scope User    # Windows の場合
@@ -14,7 +14,7 @@ cd gis-skills
 Claude Code で話しかけるだけで使える:
 
 - 「東京タワーの緯度経度を調べて」
-- 「この Shapefile を GeoJSON に変換して」
+- 「東京タワーの座標を平面直角座標系に変換して」
 - 「東京駅の 3 次メッシュコードを教えて」
 
 ## スキル一覧
@@ -22,7 +22,6 @@ Claude Code で話しかけるだけで使える:
 | スキル | ディレクトリ | 主な依存 | 用途 |
 |--------|-------------|----------|------|
 | gis-coord-transform | `gis-coord-transform/` | pyproj, jgdtrans | 座標変換・投影法変換・測地系変換・タイル座標・メッシュコード |
-| gis-data-convert | `gis-data-convert/` | fiona, geopandas, pyproj | GeoJSON/Shapefile/KML/GeoPackage/CSV 間の変換 |
 | gis-geocoding | `gis-geocoding/` | geopy, requests | 住所・地名→座標、座標→住所 |
 
 ## インストール
@@ -61,24 +60,7 @@ Windows (PowerShell):
 
 各スクリプトは初回実行時に依存パッケージを自動インストールする。手動でのセットアップは不要。
 
-`gis-data-convert` は GDAL が必要になる場合がある。自動インストールに失敗した場合は OS に応じてインストールする:
-
-```bash
-# macOS
-brew install gdal
-
-# Linux (Debian/Ubuntu)
-sudo apt install gdal-bin libgdal-dev
-
-# Linux (Fedora/RHEL)
-sudo dnf install gdal gdal-devel
-
-# Windows (conda 推奨)
-conda install -c conda-forge gdal
-# または OSGeo4W (https://trac.osgeo.org/osgeo4w/) を利用
-```
-
-> GeoJSON/CSV 間の変換は GDAL がなくても純 Python フォールバックで動作する。
+> **Note:** GIS データ変換（GeoJSON/Shapefile/KML/GeoPackage/CSV 間）はスキル化していない。Claude が geopandas/fiona のコードを直接生成すれば十分なため。
 
 ---
 
@@ -131,42 +113,6 @@ conda install -c conda-forge gdal
 - 「メッシュコード 53394611 の範囲（南西・北東の緯度経度）を教えて」
 - 「渋谷駅の 1/8 メッシュコード（レベル6）を求めて」
 - 「名古屋駅の 1 次メッシュコードを教えて」
-
----
-
-### gis-data-convert — データ変換
-
-**フォーマット検出・メタデータ確認**
-
-- 「data.shp のフォーマット・CRS・フィーチャ数を確認して」
-- 「buildings.geojson のメタデータを表示して」
-- 「この GeoPackage にどんなレイヤーが入っているか調べて」
-- 「locations.csv が GIS データとして使えるか確認して」
-
-**Shapefile ↔ GeoJSON 変換**
-
-- 「buildings.shp を GeoJSON に変換して」
-- 「この日本語の Shapefile を GeoJSON に変換して」
-- 「buildings.geojson を Shapefile に変換して」
-
-**CSV → GeoJSON**
-
-- 「locations.csv を GeoJSON に変換して（緯度経度列は自動検出で）」
-- 「この CSV から GeoJSON を作って」
-
-**GeoJSON → KML**
-
-- 「route.geojson を Google Earth 用の KML に変換して」
-
-**GeoJSON ↔ GeoPackage**
-
-- 「buildings.geojson を GeoPackage に変換して、レイヤー名は buildings にして」
-- 「data.gpkg の buildings レイヤーを GeoJSON に変換して」
-
-**CRS 変換付きフォーマット変換**
-
-- 「平面直角座標系の Shapefile を WGS84 の GeoJSON に変換して」
-- 「この GeoJSON を WGS84 に変換しつつ GeoPackage に出力して」
 
 ---
 

@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """日本の座標系一覧表示スクリプト"""
+from __future__ import annotations  # Python 3.9 で str | None 構文を有効化
 
 import argparse
 import json

@@ -2,7 +2,7 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-SKILLS=(gis-coord-transform gis-data-convert gis-geocoding)
+SKILLS=(gis-coord-transform gis-geocoding)
 NEW_VERSION="$(cat "$SCRIPT_DIR/VERSION" 2>/dev/null | tr -d '[:space:]')"
 [[ -z "$NEW_VERSION" ]] && { echo "エラー: VERSION ファイルが見つかりません"; exit 1; }
 

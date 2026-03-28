@@ -58,6 +58,9 @@ GIS（地理情報システム）関連タスクを処理する2つの Claude Co
 
 - scripts/ の各スクリプトは単体で `python3 scripts/xxx.py --help` で実行可能にする
 - 依存パッケージは `ensure_deps.py` パターンで実行時に自動インストールする（手動セットアップ不要）
+- 各スクリプトにも `_auto_install()` を内蔵する（スキル経由でなく単体実行されるケースに対応）
+- scripts/ の出力は JSON 形式を基本とする（Claude がパースしやすい）
+- 型ヒントで `str | None` 等の union 構文を使う場合は `from __future__ import annotations` を入れる（Python 3.9 互換）
 - SKILL.md の `description` はトリガーキーワードを網羅的に含める（ユーザーがどんな言い回しでも発火するように）
 - references/ には Claude の生成精度を上げるルックアップテーブルや仕様を置く（コードではなく知識）
 - SKILL.md 内のパス参照には `${CLAUDE_SKILL_DIR}` を使う
