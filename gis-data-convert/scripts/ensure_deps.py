@@ -53,6 +53,7 @@ def ensure():
                 subprocess.check_call(
                     [sys.executable, "-m", "pip", "install", pip_name, "-q"],
                     stdout=subprocess.DEVNULL,
+                    stderr=subprocess.DEVNULL,
                 )
                 installed.append(pip_name)
 

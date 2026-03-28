@@ -21,6 +21,7 @@ def ensure():
                 subprocess.check_call(
                     [sys.executable, "-m", "pip", "install", pip_name, "-q"],
                     stdout=subprocess.DEVNULL,
+                    stderr=subprocess.DEVNULL,
                 )
                 # インストール後に実際にインポートできるか検証
                 __import__(mod)

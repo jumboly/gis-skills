@@ -76,42 +76,26 @@ has_installed_skills() {
   return 1
 }
 
-install_deps() {
+show_deps() {
   echo ""
-  echo "依存パッケージを確認しています..."
-  local has_error=false
+  echo "依存パッケージ（初回実行時に自動インストールされます）:"
   for skill in "${SKILLS[@]}"; do
     local deps_script="$SCRIPT_DIR/$skill/scripts/ensure_deps.py"
     if [[ -f "$deps_script" ]]; then
-      local result
-      result="$(python3 "$deps_script" 2>&1)" || true
-      local status
-      status="$(echo "$result" | python3 -c "import sys,json; print(json.load(sys.stdin).get('status',''))" 2>/dev/null)" || true
-
-      if [[ "$status" == "ok" ]]; then
-        local pkgs
-        pkgs="$(echo "$result" | python3 -c "import sys,json; i=json.load(sys.stdin).get('installed',[]); print(', '.join(i) if i else '')" 2>/dev/null)" || true
-        if [[ -n "$pkgs" ]]; then
-          echo "  $skill: インストール済み ($pkgs)"
-        else
-          echo "  $skill: OK"
-        fi
-      elif [[ "$status" == "partial" ]]; then
-        has_error=true
-        local hint
-        hint="$(echo "$result" | python3 -c "import sys,json; print(json.load(sys.stdin).get('hint',''))" 2>/dev/null)" || true
-        echo "  $skill: 一部失敗"
-        [[ -n "$hint" ]] && echo "    → $hint"
-      else
-        has_error=true
-        echo "  $skill: 失敗（ensure_deps.py の実行に失敗しました）"
-      fi
+      local pkgs
+      pkgs="$(python3 -c "
+import ast, sys
+tree = ast.parse(open(sys.argv[1]).read())
+for node in ast.walk(tree):
+    if isinstance(node, ast.Assign):
+        for t in node.targets:
+            if isinstance(t, ast.Name) and t.id == 'REQUIRED':
+                d = ast.literal_eval(node.value)
+                print(', '.join(d.values()))
+" "$deps_script" 2>/dev/null)" || true
+      echo "  $skill: $pkgs"
     fi
   done
-  if $has_error; then
-    echo ""
-    echo "※ 一部パッケージのインストールに失敗しました。上記のヒントを参照してください。"
-  fi
 }
 
 copy_skills() {
@@ -155,7 +139,7 @@ do_install() {
     fi
 
     copy_skills "更新"
-    install_deps
+    show_deps
 
     if [[ "$installed_version" == "$NEW_VERSION" ]]; then
       echo ""
@@ -167,7 +151,7 @@ do_install() {
   else
     # 新規インストール
     copy_skills "インストール"
-    install_deps
+    show_deps
     echo ""
     echo "完了! gis-skills v${NEW_VERSION} をインストールしました"
   fi
