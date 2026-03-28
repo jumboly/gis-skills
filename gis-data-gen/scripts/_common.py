@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""gis-randomdata-gen スキル内の共通ユーティリティ。"""
+"""gis-data-gen スキル内の共通ユーティリティ。"""
 from __future__ import annotations
 
 import json

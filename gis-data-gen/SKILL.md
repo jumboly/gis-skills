@@ -1,10 +1,10 @@
 ---
-name: gis-randomdata-gen
-description: "テスト用ランダム GIS データ生成スキル。ランダム座標、ランダムポイント、ランダムライン、ランダムポリゴン、テストデータ、ダミーデータ、サンプルデータ、GeoJSON 生成、テスト用座標、テスト用図形、ランダム図形、ランダム点群、ランダム線分、ランダム多角形、Voronoi 分割、ボロノイ、凸包、convex hull、ドーナツポリゴン、穴あきポリゴン、クラスター分布、一様分布、ランダムウォーク、テスト用 GeoJSON、行政界、行政区域、境界ポリゴン、行政境界、boundary、市区町村境界、都道府県境界、mock data、test data、random coordinates、random geometry、random points、random lines、random polygons について言及した場合にこのスキルを使用する。"
+name: gis-data-gen
+description: "GIS データ生成スキル。GIS データ生成、テストデータ生成、サンプルデータ生成、ダミーデータ生成、GeoJSON 生成、ポイント生成、ライン生成、ポリゴン生成、テスト用データ、フィクスチャ、data generation、generate data、generate GeoJSON、fixture、ランダム座標、ランダムポイント、ランダムライン、ランダムポリゴン、テストデータ、ダミーデータ、サンプルデータ、テスト用座標、テスト用図形、ランダム図形、ランダム点群、ランダム線分、ランダム多角形、Voronoi 分割、ボロノイ、凸包、convex hull、ドーナツポリゴン、穴あきポリゴン、クラスター分布、一様分布、ランダムウォーク、テスト用 GeoJSON、行政界、行政区域、境界ポリゴン、行政境界、boundary、市区町村境界、都道府県境界、mock data、test data、random coordinates、random geometry、random points、random lines、random polygons について言及した場合にこのスキルを使用する。"
 tools: Bash, Read, Write, Glob
 ---
 
-# テスト用ランダム GIS データ生成スキル
+# GIS データ生成スキル
 
 bbox または GeoJSON マスク内にランダムなポイント・ライン・ポリゴンを生成し、GeoJSON FeatureCollection として出力する。
 

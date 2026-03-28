@@ -2,7 +2,7 @@
 """Overpass API で行政界ポリゴンを取得するツール。
 
 都道府県・市区町村・町丁目の境界を GeoJSON Polygon/MultiPolygon として出力する。
-gis-randomdata-gen の --mask オプションと組み合わせて使用可能。
+gis-data-gen の --mask オプションと組み合わせて使用可能。
 """
 from __future__ import annotations
 
