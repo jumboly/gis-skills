@@ -131,8 +131,15 @@ def main():
                     )
                     sys.exit(1)
                 for row in reader:
-                    lat = float(row["lat"])
-                    lon = float(row["lon"])
+                    try:
+                        lat = float(row["lat"])
+                        lon = float(row["lon"])
+                    except (ValueError, TypeError):
+                        all_results.append({"lat": row.get("lat"), "lon": row.get("lon"), "address": None, "error": "数値変換エラー"})
+                        continue
+                    if not (-90 <= lat <= 90) or not (-180 <= lon <= 180):
+                        all_results.append({"lat": lat, "lon": lon, "address": None, "error": "座標範囲外"})
+                        continue
                     result = reverse_fn(lat, lon)
                     all_results.append(result)
                     if args.service == "nominatim":

@@ -77,8 +77,8 @@ def detect_shapefile_encoding(shp_path):
     except (FileNotFoundError, OSError):
         pass
 
-    # .cpg がない場合は日本語環境で一般的な cp932 を試す
-    return "cp932"
+    # .cpg がない場合は utf-8 を先に試し、失敗時に cp932 にフォールバック
+    return None
 
 
 def read_csv_as_geodataframe(path, lat_col, lon_col, csv_crs, encoding=None):
@@ -167,12 +167,21 @@ def main():
     elif input_format == "ESRI Shapefile":
         if encoding is None:
             encoding = detect_shapefile_encoding(args.input)
-        try:
-            gdf = gpd.read_file(args.input, encoding=encoding)
-        except Exception:
-            # エンコーディングでエラーが出た場合 utf-8 で再試行
+        # エンコーディング候補を順に試行
+        encodings_to_try = [encoding] if encoding else ["utf-8", "cp932"]
+        gdf = None
+        last_error = None
+        for enc in encodings_to_try:
             try:
-                gdf = gpd.read_file(args.input, encoding="utf-8")
+                gdf = gpd.read_file(args.input, encoding=enc)
+                break
+            except Exception as e:
+                last_error = e
+                continue
+        if gdf is None:
+            # 全エンコーディングで失敗
+            try:
+                gdf = gpd.read_file(args.input)
             except Exception as e:
                 print(
                     json.dumps(

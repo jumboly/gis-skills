@@ -97,17 +97,17 @@ def transform_jgdtrans(
     # パラメータファイルの種類に応じた読み込み
     with open(par_file) as f:
         if method == "tky2jgd":
-            par = jgdtrans.load(f, format="TKY2JGD")
+            tf = jgdtrans.load(f, format="TKY2JGD")
         else:
-            par = jgdtrans.load(f, format="PatchJGD")
+            tf = jgdtrans.load(f, format="PatchJGD")
 
     results = []
     for lat, lon in points:
         point = jgdtrans.Point(latitude=lat, longitude=lon, altitude=0.0)
         if direction == "forward":
-            transformed = jgdtrans.forward(point, par)
+            transformed = tf.forward(point)
         else:
-            transformed = jgdtrans.backward(point, par)
+            transformed = tf.backward(point)
 
         results.append({
             "input_lat": lat,

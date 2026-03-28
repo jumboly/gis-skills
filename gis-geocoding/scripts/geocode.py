@@ -40,18 +40,22 @@ NOMINATIM_ENDPOINT = "https://nominatim.openstreetmap.org/search"
 NOMINATIM_DELAY = 1.1
 
 
-def _gsi_relevance(name: str, query: str) -> int:
+def _gsi_relevance(name: str, query: str) -> tuple[int, int]:
     """GSI結果の関連度スコアを返す（小さいほど高関連）。
 
     APIは部分一致で大量の結果を返すため、クエリとの一致度で並び替える。
+    タプル(一致度, 名前長)で返し、同スコア時は短い名前を優先する。
     """
     if name == query:
-        return 0
+        return (0, len(name))
     if name.startswith(query):
-        return 1
+        return (1, len(name))
     if query in name:
-        return 2
-    return 3
+        return (2, len(name))
+    # 逆方向: クエリが結果名を含む場合（例: query="東京駅前" → name="東京駅"）
+    if name in query:
+        return (2, len(name))
+    return (3, len(name))
 
 
 def geocode_gsi(query: str) -> list[dict]:

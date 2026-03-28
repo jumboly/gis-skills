@@ -134,10 +134,24 @@ gdf2.to_file("data.gpkg", layer="roads", driver="GPKG", mode="a")  # 追加
 
 - `${CLAUDE_SKILL_DIR}/references/format-specs.md` — 各フォーマットの仕様、制限事項、エンコーディング
 
+## GDAL なしでできること / できないこと
+
+| 変換 | GDAL 不要 | GDAL 必要 |
+|------|:---------:|:---------:|
+| CSV → GeoJSON | ✓（純 Python） | - |
+| GeoJSON → CSV | ✓（純 Python） | - |
+| GeoJSON 読み書き | ✓ | - |
+| Shapefile 読み書き | - | ✓ |
+| KML 読み書き | - | ✓ |
+| GeoPackage 読み書き | - | ✓ |
+
+GDAL インストールに失敗した場合は、GeoJSON/CSV 間の変換に限定して使用する。
+
 ## 重要な注意事項
 
 - GeoJSON 出力は WGS84 (EPSG:4326) にすべき（RFC 7946 準拠）
 - Shapefile の日本語属性は cp932 エンコーディングが多い
-- Shapefile のフィールド名は最大 10 文字
+- Shapefile のフィールド名は最大 10 文字（切り詰めが発生する場合は警告する）
 - KML は WGS84 固定、他の座標系からは変換が必要
 - 大きなファイルの場合はメモリ使用量に注意（fiona でストリーミング読み込みを検討）
+- CRS 変換が必要な場合は `--output-crs` オプション、または `gis-coord-transform` スキルを使用する

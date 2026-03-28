@@ -82,6 +82,42 @@ python3 ${CLAUDE_SKILL_DIR}/scripts/mesh_code.py --code 53394525
 
 メッシュコード体系の詳細は `${CLAUDE_SKILL_DIR}/references/map-math.md` を参照。
 
+## 距離・面積の正確な計算
+
+座標変換と密接に関連するため、距離・面積計算のガイドラインをここに記載する。
+
+### 測地線距離（2地点間の正確な距離）
+
+地理座標系 (EPSG:4326) の度数で距離を計算してはいけない。`pyproj.Geod` を使う:
+
+```python
+from pyproj import Geod
+geod = Geod(ellps="GRS80")  # JGD2011 準拠楕円体
+az12, az21, dist_m = geod.inv(lon1, lat1, lon2, lat2)
+# dist_m: メートル単位の測地線距離
+# az12: 順方位角（度）
+```
+
+### 投影座標系での平面距離
+
+平面直角座標系や UTM に投影すれば、ユークリッド距離として計算可能。ただし原点から離れるほど歪みが大きくなる:
+
+```python
+import math
+from pyproj import Transformer
+
+t = Transformer.from_crs("EPSG:4326", "EPSG:6677", always_xy=True)
+x1, y1 = t.transform(lon1, lat1)
+x2, y2 = t.transform(lon2, lat2)
+dist = math.sqrt((x2 - x1)**2 + (y2 - y1)**2)
+```
+
+### 使い分け
+
+- **2地点間の距離** → `Geod.inv()` が最も正確（投影歪みなし）
+- **面積計算** → 投影座標系に変換してから `gdf.area`。地理座標系のまま計算してはいけない
+- **バッファ作成** → 投影座標系でメートル単位で `buffer()` し、WGS84 に戻す
+
 ## リファレンス
 
 - `${CLAUDE_SKILL_DIR}/references/japanese-plane-rect.md` — 日本の平面直角座標系19系の定義と EPSG コード
