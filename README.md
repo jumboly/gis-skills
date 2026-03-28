@@ -53,6 +53,11 @@ Windows (PowerShell):
 .\setup.ps1 -Action Uninstall -Scope User
 ```
 
+## 必要条件
+
+- **Python 3.10+** 推奨（macOS 標準の Python 3.9 は LibreSSL でビルドされており SSL 警告が出る場合がある）
+- macOS の場合: `brew install python`
+
 ## 依存パッケージ
 
 各スクリプトは初回実行時に依存パッケージを自動インストールする。手動でのセットアップは不要。

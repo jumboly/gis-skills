@@ -10,6 +10,10 @@ import json
 import subprocess
 import sys
 import time
+import warnings
+
+# macOS標準Python (LibreSSL) でのurllib3警告を抑制
+warnings.filterwarnings("ignore", message=".*urllib3.*OpenSSL.*")
 
 
 def _auto_install():
