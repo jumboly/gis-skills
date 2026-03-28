@@ -71,3 +71,56 @@ GIS（地理情報システム）関連タスクを処理する4つの Claude Co
 
 - バージョンは `VERSION` ファイル（ルート直下）で管理する（セマンティックバージョニング）
 - リリース時は `VERSION` と `README.md` のバッジ (`img.shields.io/badge/version-X.Y.Z-blue`) を同時に更新する
+
+## Git Worktree による並行開発
+
+複数スキルを同時に開発する場合、git worktree で各フィーチャーブランチを並行作業する。
+
+### ディレクトリ構成
+
+```
+gis-skills/                                        ← main ブランチ（メインワークツリー）
+├── .claude/
+│   └── worktrees/
+│       ├── feat-gis-elevation/                    ← feat/gis-elevation
+│       ├── feat-gis-geocoding/                    ← feat/gis-geocoding
+│       └── fix-gis-spatial-index/                 ← fix/gis-spatial-index
+```
+
+`.claude/` は `.gitignore` 済みのため、worktree ディレクトリは git に無視される。
+
+### 命名規則
+
+- **worktree ディレクトリ名**: ブランチ名の `/` を `-` に置換（例: `feat/gis-elevation` → `feat-gis-elevation`）
+- **ブランチ名**: `feat/gis-*`、`fix/gis-*` 等のプレフィックス付き
+
+### ワークフロー
+
+```bash
+# 新規ブランチで worktree を作成
+git worktree add .claude/worktrees/feat-gis-elevation -b feat/gis-elevation
+
+# 既存ブランチで worktree を作成
+git worktree add .claude/worktrees/feat-gis-elevation feat/gis-elevation
+
+# worktree 内で作業
+cd .claude/worktrees/feat-gis-elevation
+
+# worktree 内でスキルをテストインストール
+./setup.sh --user
+
+# 一覧確認
+git worktree list
+
+# PR マージ後にクリーンアップ
+git worktree remove .claude/worktrees/feat-gis-elevation
+
+# 不要な worktree 参照を掃除
+git worktree prune
+```
+
+### 注意事項
+
+- メインワークツリー（リポジトリルート）は常に `main` ブランチを維持する
+- 同じブランチを複数の worktree で checkout できない（git の制約）
+- worktree 内で `./setup.sh --user` を実行すると開発版スキルがインストールされる。テスト後は main に戻って `./setup.sh --user` で安定版に戻すこと
