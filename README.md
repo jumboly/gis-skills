@@ -1,4 +1,4 @@
-# gis-skills ![version](https://img.shields.io/badge/version-0.2.0-blue)
+# gis-skills ![version](https://img.shields.io/badge/version-0.3.0-blue)
 
 > A collection of Claude Code skills for GIS tasks: coordinate transformation, geocoding, and map calculations for Japan and worldwide.
 
@@ -22,6 +22,8 @@ Claude Code で話しかけるだけで使える:
 - 「東京タワーの緯度経度を調べて」
 - 「東京タワーの座標を平面直角座標系に変換して」
 - 「東京駅の 3 次メッシュコードを教えて」
+- 「東京タワーの Geohash を教えて」
+- 「この座標を H3 セルに変換して」
 
 ## 機能一覧
 
@@ -32,6 +34,8 @@ Claude Code で話しかけるだけで使える:
 - XYZ タイル座標変換、バウンディングボックス計算
 - JIS X 0410 標準地域メッシュコード変換（Level 1〜6）
 - CSV 一括バッチ処理、海外対応（Nominatim / OpenStreetMap）
+- 空間インデックス変換（Geohash / H3 / Plus Code / Quadkey / MGRS / Maidenhead / Morton code）
+- セルの近傍検索、親子セル、境界ポリゴン取得、ポリフィル、コンパクト化
 
 ## スキル一覧
 
@@ -39,6 +43,7 @@ Claude Code で話しかけるだけで使える:
 |--------|-------------|----------|------|
 | gis-coord-transform | `gis-coord-transform/` | pyproj, jgdtrans | 座標変換・投影法変換・測地系変換・タイル座標・メッシュコード |
 | gis-geocoding | `gis-geocoding/` | requests | 住所・地名→座標、座標→住所 |
+| gis-spatial-index | `gis-spatial-index/` | h3, openlocationcode, mgrs | Geohash/H3/Plus Code/Quadkey/MGRS/Maidenhead/Morton 空間インデックス |
 
 ## インストール
 
@@ -80,6 +85,7 @@ Windows (PowerShell):
 |--------|-------------------------------|
 | gis-coord-transform | pyproj, jgdtrans |
 | gis-geocoding | requests |
+| gis-spatial-index | h3, openlocationcode, mgrs |
 
 > **Note:** GIS データ変換（GeoJSON/Shapefile/KML/GeoPackage/CSV 間）はスキル化していない。Claude が geopandas/fiona のコードを直接生成すれば十分なため。
 
@@ -196,14 +202,77 @@ Windows (PowerShell):
 
 ---
 
+### gis-spatial-index — 空間インデックス
+
+**Geohash**
+
+- 「東京タワーの Geohash（precision 7）を教えて」
+- 「Geohash xn76urx の範囲と隣接セルを表示して」
+- 「この GeoJSON ポリゴン内の Geohash 一覧を出して（precision 6）」
+
+**H3**
+
+- 「東京タワーの H3 セル（resolution 9）を教えて」
+- 「この H3 セルの k-ring（k=2）を取得して」
+- 「この GeoJSON ポリゴンを H3 セルで埋めて（resolution 8）」
+
+**Plus Code**
+
+- 「東京タワーの Plus Code を教えて」
+- 「Plus Code 8Q7XMM5G+QV の座標を教えて」
+
+**Quadkey**
+
+- 「東京タワーの Quadkey（zoom 15）を教えて」
+- 「Quadkey 133010110110001 の範囲を表示して」
+
+**MGRS**
+
+- 「東京タワーの MGRS 座標を教えて」
+- 「MGRS 54SUE8553 の範囲を教えて」
+
+**Maidenhead**
+
+- 「東京タワーのグリッドロケーターを教えて」
+
+**Morton code**
+
+- 「この座標の Morton code を計算して」
+
+---
+
 ### 複合ワークフロー例
 
 複数のスキルを組み合わせて使うこともできる:
+
+**geocoding + coord-transform**
 
 - 「東京タワーの座標を調べて、平面直角座標系（IX系）に変換して」
 - 「addresses.csv の住所をジオコーディングして、結果の座標をメッシュコードに変換して」
 - 「那覇市役所の座標を調べて、平面直角座標系に変換して」（自動的に XV 系が選択される）
 - 「この旧測地系の座標リストを JGD2011 に変換してから逆ジオコーディングで住所を取得して」
+
+**geocoding + spatial-index**
+
+- 「東京タワーの座標を調べて、Geohash（precision 7）と H3 セル（resolution 9）を教えて」
+- 「addresses.csv の住所をジオコーディングして、結果に Plus Code を付与して」
+
+**coord-transform + spatial-index**
+
+- 「この平面直角座標系の座標を WGS84 に変換して、MGRS 座標を求めて」
+- 「この Geohash の中心座標を UTM 座標に変換して」
+
+**3スキル連携**
+
+- 「addresses.csv の住所をジオコーディングして、H3 セル（resolution 8）とメッシュコード（3次メッシュ）を付与して」
+
+**スキル + Claude 直接処理**
+
+Claude 自身も geopandas・shapely・fiona 等のコードを直接生成・実行して GIS 処理を行えるため、スキルと組み合わせることでより高度なワークフローが可能になる:
+
+- 「buildings.shp の各建物の重心座標を求めて、Geohash を付与した CSV を出力して」（Claude が geopandas/shapely で重心計算 → gis-spatial-index で Geohash 付与）
+- 「この2つの GeoJSON ポリゴンの交差領域を求めて、その範囲を H3 セルでポリフィルして」（Claude が shapely で交差演算 → gis-spatial-index でポリフィル）
+- 「この CSV の座標を GeoJSON に変換して、各ポイントの最寄り駅までの距離も計算して」（Claude が geopandas で GeoJSON 生成・距離計算 → gis-geocoding で駅名検索）
 
 ---
 
@@ -229,7 +298,7 @@ macOS 標準の Python 3.9 は LibreSSL でビルドされているため、urll
 
 プロキシ環境では自動インストールが失敗する場合があります。事前に手動でインストールしてください:
 ```bash
-pip install pyproj jgdtrans requests
+pip install pyproj jgdtrans requests h3 openlocationcode mgrs
 ```
 
 **Nominatim のバッチ処理が遅い**
