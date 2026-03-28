@@ -22,7 +22,7 @@ param(
 )
 
 $ErrorActionPreference = "Stop"
-$Skills = @("gis-coord-transform", "gis-geocoding", "gis-spatial-index")
+$Skills = @("gis-coord-transform", "gis-geocoding", "gis-spatial-index", "gis-elevation", "gis-data-gen")
 
 $VersionFile = Join-Path $PSScriptRoot "VERSION"
 if (-not (Test-Path $VersionFile)) {
@@ -62,42 +62,29 @@ function Test-HasInstalledSkills {
     return $false
 }
 
-function Install-Deps {
+function Show-Deps {
     Write-Host ""
-    Write-Host "依存パッケージを確認しています..."
-    $hasError = $false
+    Write-Host "依存パッケージ（初回実行時に自動インストールされます）:"
 
     foreach ($skill in $Skills) {
         $depsScript = Join-Path $PSScriptRoot $skill "scripts" "ensure_deps.py"
         if (Test-Path $depsScript) {
             try {
-                $output = & python3 $depsScript 2>$null
-                $result = $output | ConvertFrom-Json
-
-                if ($result.status -eq "ok") {
-                    if ($result.installed -and $result.installed.Count -gt 0) {
-                        Write-Host "  ${skill}: インストール済み ($($result.installed -join ', '))"
-                    } else {
-                        Write-Host "  ${skill}: OK"
-                    }
-                } elseif ($result.status -eq "partial") {
-                    $hasError = $true
-                    Write-Host "  ${skill}: 一部失敗"
-                    if ($result.hint) {
-                        Write-Host "    → $($result.hint)"
-                    }
-                } else {
-                    Write-Host "  ${skill}: 確認完了"
-                }
+                $pkgs = & python3 -c @"
+import ast, sys
+tree = ast.parse(open(sys.argv[1]).read())
+for node in ast.walk(tree):
+    if isinstance(node, ast.Assign):
+        for t in node.targets:
+            if isinstance(t, ast.Name) and t.id == 'REQUIRED':
+                d = ast.literal_eval(node.value)
+                print(', '.join(d.values()))
+"@ $depsScript 2>$null
+                Write-Host "  ${skill}: $pkgs"
             } catch {
-                Write-Host "  ${skill}: 確認完了"
+                # ensure_deps.py がない or パース失敗
             }
         }
-    }
-
-    if ($hasError) {
-        Write-Host ""
-        Write-Host "※ 一部パッケージのインストールに失敗しました。上記のヒントを参照してください。"
     }
 }
 
@@ -148,7 +135,7 @@ function Do-Install {
         }
 
         Copy-Skills -Label "更新"
-        Install-Deps
+        Show-Deps
 
         if ($installedVersion -eq $NewVersion) {
             Write-Host ""
@@ -160,7 +147,7 @@ function Do-Install {
     } else {
         # 新規インストール
         Copy-Skills -Label "インストール"
-        Install-Deps
+        Show-Deps
         Write-Host ""
         Write-Host "完了! gis-skills v${NewVersion} をインストールしました"
     }
