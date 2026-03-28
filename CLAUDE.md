@@ -4,13 +4,14 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## プロジェクト概要
 
-GIS（地理情報システム）関連タスクを処理する3つの Claude Code スキルのコレクション。各スキルは独立したディレクトリに `SKILL.md`、`scripts/`、`references/` を持つ。
+GIS（地理情報システム）関連タスクを処理する4つの Claude Code スキルのコレクション。各スキルは独立したディレクトリに `SKILL.md`、`scripts/`、`references/` を持つ。
 
 | スキル | ディレクトリ | 主な依存 | 用途 |
 |--------|-------------|----------|------|
 | gis-coord-transform | `gis-coord-transform/` | pyproj, jgdtrans | 座標変換・投影法変換・測地系変換・タイル座標・メッシュコード |
 | gis-geocoding | `gis-geocoding/` | requests | 住所・地名→座標、座標→住所（国土地理院API/Nominatim） |
 | gis-spatial-index | `gis-spatial-index/` | h3, openlocationcode, mgrs | Geohash/H3/Plus Code/Quadkey/MGRS/Maidenhead/Morton 空間インデックス |
+| gis-elevation | `gis-elevation/` | Pillow, requests | 国土地理院 DEM タイルから標高取得（5m/10mフォールバック）・断面図 |
 
 > **Note:** GIS データ変換（GeoJSON/Shapefile/KML/GeoPackage/CSV 間）はスキル化していない。Claude が geopandas/fiona のコードを直接生成すれば十分なため。
 
