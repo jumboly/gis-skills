@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""テストデータ生成スキルに必要な依存パッケージをインストールする。"""
+"""GIS データ生成スキルに必要な依存パッケージをインストールする。"""
 import subprocess
 import sys
 import json
