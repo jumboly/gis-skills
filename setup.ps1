@@ -22,7 +22,7 @@ param(
 )
 
 $ErrorActionPreference = "Stop"
-$Skills = @("gis-coord-transform", "gis-spatial-analysis", "gis-data-convert", "gis-geocoding")
+$Skills = @("gis-coord-transform", "gis-data-convert", "gis-geocoding")
 
 $VersionFile = Join-Path $PSScriptRoot "VERSION"
 if (-not (Test-Path $VersionFile)) {

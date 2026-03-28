@@ -1,6 +1,6 @@
-# gis-skills ![version](https://img.shields.io/badge/version-0.1.0-blue)
+# gis-skills ![version](https://img.shields.io/badge/version-0.2.0-blue)
 
-GIS（地理情報システム）関連タスクを処理する Claude Code スキル集。座標変換・空間解析・データ変換・ジオコーディングの4つのスキルで構成される。
+GIS（地理情報システム）関連タスクを処理する Claude Code スキル集。座標変換・データ変換・ジオコーディングの3つのスキルで構成される。
 
 ## Quick Start
 
@@ -22,7 +22,6 @@ Claude Code で話しかけるだけで使える:
 | スキル | ディレクトリ | 主な依存 | 用途 |
 |--------|-------------|----------|------|
 | gis-coord-transform | `gis-coord-transform/` | pyproj, jgdtrans | 座標変換・投影法変換・測地系変換・タイル座標・メッシュコード |
-| gis-spatial-analysis | `gis-spatial-analysis/` | shapely, geopandas, pyproj | バッファ・オーバーレイ・距離計算・空間結合 |
 | gis-data-convert | `gis-data-convert/` | fiona, geopandas, pyproj | GeoJSON/Shapefile/KML/GeoPackage/CSV 間の変換 |
 | gis-geocoding | `gis-geocoding/` | geopy, requests | 住所・地名→座標、座標→住所 |
 
@@ -132,31 +131,6 @@ conda install -c conda-forge gdal
 - 「メッシュコード 53394611 の範囲（南西・北東の緯度経度）を教えて」
 - 「渋谷駅の 1/8 メッシュコード（レベル6）を求めて」
 - 「名古屋駅の 1 次メッシュコードを教えて」
-
----
-
-### gis-spatial-analysis — 空間解析
-
-**バッファ解析**
-
-- 「points.geojson の各ポイントの周囲 500m にバッファを作成して」
-- 「道路の line.geojson から 100m バッファのポリゴンを生成して」
-- 「公園ポリゴン parks.geojson の外周に 200m のバッファを追加して」
-
-**オーバーレイ解析**
-
-- 「area_a.geojson と area_b.geojson の重なる部分だけ抽出して」
-- 「2 つの行政区域ポリゴンの和集合（union）を作って」
-- 「土地利用データから河川区域を差し引いて（difference）」
-- 「2 つのエリアの対称差（どちらか一方にだけ含まれる領域）を求めて」
-
-**距離計算**
-
-- 「stations.geojson の各駅から hospitals.geojson の最寄りの病院までの距離を計算して」
-- 「2 つの GeoJSON ファイルの全組み合わせの距離行列を作って」
-- 「schools.geojson と parks.geojson で対応するペア同士の距離を計算して」
-- 「地球の曲率を考慮した測地線距離で最近傍計算して」
-- 「stations.geojson の中で、各駅の最寄りの別の駅との距離を求めて」
 
 ---
 
