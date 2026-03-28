@@ -36,31 +36,25 @@ bbox または GeoJSON マスク内にランダムなポイント・ライン・
 
 例: 「渋谷区内」
 
-Overpass API で行政境界ポリゴンを取得し、一時 GeoJSON ファイルとして保存する:
+`fetch_boundary.py` で Overpass API から行政界ポリゴンを取得する:
 
 ```bash
-# Overpass API で市区町村境界を取得する Python コード
-python3 -c "
-import requests, json
-query = '''[out:json][timeout:30];
-relation[\"name\"=\"渋谷区\"][\"admin_level\"=\"7\"];
-out geom;'''
-resp = requests.get('https://overpass-api.de/api/interpreter', params={'data': query})
-data = resp.json()
-# relation の way メンバーから座標を抽出してポリゴンを構築
-coords = []
-for member in data['elements'][0].get('members', []):
-    if member['type'] == 'way' and member.get('role') == 'outer':
-        coords.extend([[p['lon'], p['lat']] for p in member.get('geometry', [])])
-if coords:
-    geojson = {'type': 'Polygon', 'coordinates': [coords + [coords[0]]]}
-    with open('/tmp/mask.geojson', 'w') as f:
-        json.dump(geojson, f)
-    print('OK')
-"
+# 市区町村境界を取得
+python3 ${CLAUDE_SKILL_DIR}/scripts/fetch_boundary.py --name "渋谷区" --output /tmp/mask.geojson
+
+# 都道府県境界を取得
+python3 ${CLAUDE_SKILL_DIR}/scripts/fetch_boundary.py --name "大阪府" --level prefecture --output /tmp/mask.geojson
+
+# 町丁目境界を取得（OSM のカバレッジに依存）
+python3 ${CLAUDE_SKILL_DIR}/scripts/fetch_boundary.py --name "渋谷一丁目" --level town --output /tmp/mask.geojson
 ```
 
-※ Overpass API のレスポンス構造は複雑なため、実際には shapely を使ってマルチポリゴンを適切に構築すること。
+**オプション:**
+| 引数 | 説明 | デフォルト |
+|------|------|-----------|
+| `--name NAME` | 行政区域名 | (必須) |
+| `--level` | prefecture / municipality / town | municipality |
+| `--output FILE` | 出力先ファイル | stdout |
 
 #### パターン D: 円形範囲 → `--mask`
 
