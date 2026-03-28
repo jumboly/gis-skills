@@ -4,25 +4,18 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## プロジェクト概要
 
-GIS（地理情報システム）関連タスクを処理する3つの Claude Code スキルのコレクション。各スキルは独立したディレクトリに `SKILL.md`、`scripts/`、`references/` を持つ。
+GIS（地理情報システム）関連タスクを処理する2つの Claude Code スキルのコレクション。各スキルは独立したディレクトリに `SKILL.md`、`scripts/`、`references/` を持つ。
 
 | スキル | ディレクトリ | 主な依存 | 用途 |
 |--------|-------------|----------|------|
 | gis-coord-transform | `gis-coord-transform/` | pyproj, jgdtrans | 座標変換・投影法変換・測地系変換・タイル座標・メッシュコード |
-| gis-data-convert | `gis-data-convert/` | fiona, geopandas, pyproj | GeoJSON/Shapefile/KML/GeoPackage/CSV 間の変換 |
 | gis-geocoding | `gis-geocoding/` | geopy, requests | 住所・地名→座標、座標→住所（国土地理院API/Nominatim） |
+
+> **Note:** GIS データ変換（GeoJSON/Shapefile/KML/GeoPackage/CSV 間）はスキル化していない。Claude が geopandas/fiona のコードを直接生成すれば十分なため。
 
 ## 依存パッケージ
 
 各スクリプトは実行時に依存パッケージの有無を確認し、未インストールの場合は自動で `pip install` する。手動でのセットアップは不要。
-
-`gis-data-convert` は fiona/GDAL のインストールに失敗する場合がある。その場合は OS に応じた方法で GDAL を先にインストールする:
-- **macOS**: `brew install gdal`
-- **Linux (Debian/Ubuntu)**: `sudo apt install gdal-bin libgdal-dev`
-- **Linux (Fedora/RHEL)**: `sudo dnf install gdal gdal-devel`
-- **Windows**: `conda install -c conda-forge gdal`（推奨）または [OSGeo4W](https://trac.osgeo.org/osgeo4w/)
-
-GeoJSON/CSV 間の変換は純 Python フォールバックで対応可能。
 
 ## アーキテクチャ
 

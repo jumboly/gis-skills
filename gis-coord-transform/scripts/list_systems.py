@@ -22,53 +22,71 @@ def _auto_install():
 _auto_install()
 
 from pyproj import CRS
+from pyproj.aoi import AreaOfInterest
 from pyproj.database import query_crs_info
+from pyproj.enums import PJType
+
+
+# 日本の概略的なバウンディングボックス
+_JAPAN_AOI = AreaOfInterest(
+    west_lon_degree=122.0, south_lat_degree=20.0,
+    east_lon_degree=154.0, north_lat_degree=46.0,
+)
+
+_PJ_TYPE_MAP = {
+    "geographic": [PJType.GEOGRAPHIC_2D_CRS],
+    "projected": [PJType.PROJECTED_CRS],
+}
+
+# 日本語キーワードから英語名へのマッピング（検索の利便性向上）
+_JA_KEYWORD_MAP = {
+    "平面直角": "plane rectangular",
+    "地理座標": "geographic",
+    "ウェブメルカトル": "web mercator",
+    "webメルカトル": "web mercator",
+    "utm": "utm",
+    "旧測地系": "tokyo",
+    "日本測地系2000": "jgd2000",
+    "日本測地系2011": "jgd2011",
+}
 
 
 def list_japanese_crs(search: str | None = None, crs_type: str = "all") -> list[dict]:
     """日本に関連する座標系を検索・一覧表示する"""
-    # pyproj の CRS データベースから日本関連の座標系を検索
-    # area_of_use で "Japan" を含むものを取得
-    type_filter = None
-    if crs_type == "geographic":
-        from pyproj.database import CRSType
-        type_filter = CRSType.GEOGRAPHIC_2D
-    elif crs_type == "projected":
-        from pyproj.database import CRSType
-        type_filter = CRSType.PROJECTED
+    pj_types = _PJ_TYPE_MAP.get(crs_type)
 
-    # 日本の座標系を取得（area_of_use に "Japan" を含むもの）
-    if type_filter:
-        crs_list = query_crs_info(
-            auth_name="EPSG",
-            area_of_use="Japan",
-            crs_type=type_filter,
-        )
-    else:
-        crs_list = query_crs_info(
-            auth_name="EPSG",
-            area_of_use="Japan",
-        )
+    crs_list = query_crs_info(
+        auth_name="EPSG",
+        area_of_interest=_JAPAN_AOI,
+        pj_types=pj_types,
+    )
 
+    # "Japan" を含むもののみに絞る（AOI は周辺国も含むため）
     results = []
     for info in crs_list:
-        auth_name, code, name, crs_type_val, *rest = info
-        # area_of_use は CRSInfo の属性
-        area = info.area_of_use if hasattr(info, "area_of_use") else ""
+        area = info.area_of_use
+        area_name = area.name if area else ""
+        if "Japan" not in area_name and "日本" not in area_name:
+            continue
 
         # キーワード検索フィルタ
         if search:
+            # 日本語キーワードを英語に変換して検索
             search_lower = search.lower()
-            searchable = f"{name} {code} {area}".lower()
-            if search_lower not in searchable:
+            search_terms = [search_lower]
+            for ja, en in _JA_KEYWORD_MAP.items():
+                if ja in search_lower:
+                    search_terms.append(search_lower.replace(ja, en))
+            searchable = f"{info.name} {info.code} {area_name}".lower()
+            if not any(term in searchable for term in search_terms):
                 continue
 
         results.append({
-            "epsg": f"{auth_name}:{code}",
-            "code": code,
-            "name": name,
-            "type": str(crs_type_val) if crs_type_val else "",
-            "area_of_use": area or "",
+            "epsg": f"{info.auth_name}:{info.code}",
+            "code": info.code,
+            "name": info.name,
+            "type": str(info.type) if info.type else "",
+            "area_of_use": area_name,
         })
 
     # EPSG コード順にソート
