@@ -38,8 +38,10 @@ def ensure():
                     stdout=subprocess.DEVNULL,
                     stderr=subprocess.DEVNULL,
                 )
+                # インストール後に実際にインポートできるか検証
+                __import__(mod)
                 installed.append(pip_name)
-            except subprocess.CalledProcessError:
+            except (subprocess.CalledProcessError, ImportError):
                 failed.append(pip_name)
 
     # GDAL 系が失敗した場合のフォールバック

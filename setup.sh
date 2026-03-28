@@ -84,7 +84,7 @@ install_deps() {
     local deps_script="$SCRIPT_DIR/$skill/scripts/ensure_deps.py"
     if [[ -f "$deps_script" ]]; then
       local result
-      result="$(python3 "$deps_script" 2>/dev/null)" || true
+      result="$(python3 "$deps_script" 2>&1)" || true
       local status
       status="$(echo "$result" | python3 -c "import sys,json; print(json.load(sys.stdin).get('status',''))" 2>/dev/null)" || true
 
@@ -103,7 +103,8 @@ install_deps() {
         echo "  $skill: 一部失敗"
         [[ -n "$hint" ]] && echo "    → $hint"
       else
-        echo "  $skill: 確認完了"
+        has_error=true
+        echo "  $skill: 失敗（ensure_deps.py の実行に失敗しました）"
       fi
     fi
   done
