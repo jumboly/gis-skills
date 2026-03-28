@@ -2,13 +2,11 @@
 """ランダムポイント（GeoJSON Point）を生成するツール。
 
 bbox または GeoJSON マスク内にランダムな点群を生成する。
-分布パターン: uniform（一様）、clustered（クラスター）、grid（格子）。
+分布パターン: uniform（一様）、clustered（クラスター）。
 """
 from __future__ import annotations
 
 import argparse
-import json
-import math
 import os
 import sys
 
@@ -78,36 +76,6 @@ def generate_clustered(
     return points
 
 
-def generate_grid(
-    bbox: tuple[float, float, float, float],
-    count: int,
-    mask=None,
-) -> list[tuple[float, float]]:
-    """等間隔格子点を生成する。count は目標数（実際の数は格子に依存）。"""
-    west, south, east, north = bbox
-    aspect = (east - west) / max(north - south, 1e-10)
-    rows = max(1, int(math.sqrt(count / max(aspect, 1e-10))))
-    cols = max(1, int(count / rows))
-
-    lon_step = (east - west) / max(cols, 1)
-    lat_step = (north - south) / max(rows, 1)
-
-    # マスク使用時は shapely を1回だけ import
-    _Point = None
-    if mask is not None:
-        from shapely.geometry import Point as _Point
-
-    points = []
-    for r in range(rows):
-        for c in range(cols):
-            lon = west + lon_step * (c + 0.5)
-            lat = south + lat_step * (r + 0.5)
-            if mask is not None and not mask.contains(_Point(lon, lat)):
-                continue
-            points.append((lon, lat))
-    return points
-
-
 def to_geojson(
     points: list[tuple[float, float]],
     bbox: tuple[float, float, float, float],
@@ -142,7 +110,7 @@ def main():
     add_area_args(parser)
     add_common_args(parser)
     parser.add_argument(
-        "--distribution", choices=["uniform", "clustered", "grid"],
+        "--distribution", choices=["uniform", "clustered"],
         default="uniform", help="分布パターン (デフォルト: uniform)",
     )
     parser.add_argument("--clusters", type=int, default=3, help="クラスター数 (デフォルト: 3)")
@@ -167,8 +135,6 @@ def main():
         points = generate_clustered(
             bbox, args.count, rng, args.clusters, args.cluster_spread, mask,
         )
-    elif args.distribution == "grid":
-        points = generate_grid(bbox, args.count, mask)
 
     result = to_geojson(points, bbox, seed, params)
     write_output(result, args.output, len(points))

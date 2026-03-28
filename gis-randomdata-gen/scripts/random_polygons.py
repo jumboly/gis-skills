@@ -8,7 +8,6 @@ bbox または GeoJSON マスク内にランダムなポリゴンを生成する
 from __future__ import annotations
 
 import argparse
-import json
 import math
 import os
 import sys
@@ -141,10 +140,15 @@ def generate_convex_hull(
     return polygons
 
 
-def add_holes(polygons, rng, max_holes: int, hole_ratio: float, donut_ratio: float):
+def add_holes(polygons, rng):
     """ポリゴンにランダムな穴を追加してドーナツポリゴンを作る。"""
     from shapely.geometry import Point
     from shapely.ops import unary_union
+
+    # テストデータとして扱いやすい範囲に固定
+    max_holes = 3
+    hole_ratio = 0.3
+    donut_ratio = 0.5
 
     result = []
     for poly in polygons:
@@ -253,15 +257,6 @@ def main():
     parser.add_argument("--vertices-max", type=int, default=12, help="convex-hull: 最大頂点数 (デフォルト: 12)")
 
     parser.add_argument("--holes", action="store_true", help="穴あきポリゴン（ドーナツ）を有効化")
-    parser.add_argument("--max-holes", type=int, default=3, help="1ポリゴンあたりの最大穴数 (デフォルト: 3)")
-    parser.add_argument(
-        "--hole-ratio", type=float, default=0.3,
-        help="穴の面積比（外側ポリゴンに対する割合、デフォルト: 0.3）",
-    )
-    parser.add_argument(
-        "--donut-ratio", type=float, default=0.5,
-        help="全ポリゴンのうち穴あきにする割合 (デフォルト: 0.5)",
-    )
     args = parser.parse_args()
 
     validate_count(args.count)
@@ -271,9 +266,6 @@ def main():
     params = {"method": args.method}
     if args.holes:
         params["holes"] = True
-        params["max_holes"] = args.max_holes
-        params["hole_ratio"] = args.hole_ratio
-        params["donut_ratio"] = args.donut_ratio
 
     if args.method == "voronoi":
         polygons = generate_voronoi(bbox, args.count, rng, mask)
@@ -285,7 +277,7 @@ def main():
         )
 
     if args.holes:
-        polygons = add_holes(polygons, rng, args.max_holes, args.hole_ratio, args.donut_ratio)
+        polygons = add_holes(polygons, rng)
 
     result = to_geojson(polygons, bbox, seed, params)
     write_output(result, args.output, len(polygons))

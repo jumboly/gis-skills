@@ -10,6 +10,7 @@ import argparse
 import json
 import os
 import sys
+import time
 
 sys.path.insert(0, os.path.dirname(__file__))
 from _common import auto_install
@@ -32,19 +33,36 @@ LEVEL_MAP = {
 }
 
 
+def _sanitize_name(name: str) -> str:
+    """Overpass QL インジェクションを防ぐためクエリ構文文字を除去する。"""
+    return name.replace('"', "").replace("\\", "").replace(";", "")
+
+
 def _query_overpass(name: str, admin_level: int) -> dict:
-    """Overpass API にクエリを送信して JSON レスポンスを返す。"""
+    """Overpass API にクエリを送信して JSON レスポンスを返す。
+
+    エラー時は {"error": "..."} を返す（例外は投げない）。
+    """
+    safe_name = _sanitize_name(name)
     query = f"""[out:json][timeout:30];
-relation["name"="{name}"]["admin_level"="{admin_level}"];
+relation["name"="{safe_name}"]["admin_level"="{admin_level}"];
 out geom;"""
-    resp = requests.get(
-        OVERPASS_ENDPOINT,
-        params={"data": query},
-        headers={"User-Agent": USER_AGENT},
-        timeout=30,
-    )
-    resp.raise_for_status()
-    return resp.json()
+    try:
+        resp = requests.get(
+            OVERPASS_ENDPOINT,
+            params={"data": query},
+            headers={"User-Agent": USER_AGENT},
+            timeout=30,
+        )
+        resp.raise_for_status()
+        return resp.json()
+    except requests.exceptions.HTTPError as e:
+        code = e.response.status_code if e.response is not None else "unknown"
+        return {"error": f"Overpass API が HTTP {code} を返しました（{OVERPASS_ENDPOINT}）"}
+    except requests.exceptions.Timeout:
+        return {"error": f"Overpass API がタイムアウトしました（30秒、{OVERPASS_ENDPOINT}）"}
+    except requests.exceptions.ConnectionError:
+        return {"error": f"Overpass API に接続できません（{OVERPASS_ENDPOINT}）"}
 
 
 def _build_rings(ways: list[list[tuple[float, float]]]) -> list[list[tuple[float, float]]]:
@@ -118,10 +136,27 @@ def _relation_to_geometry(element: dict) -> Polygon | MultiPolygon | None:
     return MultiPolygon(polygons)
 
 
-def fetch_boundary(name: str, admin_levels: list[int]) -> dict | None:
-    """行政界ポリゴンを取得して GeoJSON geometry dict を返す。"""
-    for level in admin_levels:
+def fetch_boundary(name: str, admin_levels: list[int]) -> dict:
+    """行政界ポリゴンを取得して GeoJSON geometry dict を返す。
+
+    Returns:
+        成功時: {"geometry": ..., "name": ..., "admin_level": ..., "osm_id": ...}
+        失敗時: {"error": "..."}
+    """
+    last_error: str | None = None
+
+    for i, level in enumerate(admin_levels):
+        # レート制限遵守: 複数 admin_level を試す際にリクエスト間隔を空ける
+        if i > 0:
+            time.sleep(1)
+
         data = _query_overpass(name, level)
+
+        # 通信エラー時は記録して次の admin_level を試す
+        if "error" in data:
+            last_error = data["error"]
+            continue
+
         elements = data.get("elements", [])
 
         for elem in elements:
@@ -130,7 +165,6 @@ def fetch_boundary(name: str, admin_levels: list[int]) -> dict | None:
             geom = _relation_to_geometry(elem)
             if geom is not None:
                 result = mapping(geom)
-                # 取得した行政区域の情報を metadata として付与
                 tags = elem.get("tags", {})
                 return {
                     "geometry": result,
@@ -139,7 +173,9 @@ def fetch_boundary(name: str, admin_levels: list[int]) -> dict | None:
                     "osm_id": elem.get("id"),
                 }
 
-    return None
+    if last_error:
+        return {"error": last_error}
+    return {"error": f"'{name}' (admin_level={admin_levels}) に一致する行政界が見つかりませんでした"}
 
 
 def main():
@@ -158,13 +194,10 @@ def main():
     admin_levels = LEVEL_MAP[args.level]
     result = fetch_boundary(args.name, admin_levels)
 
-    if result is None:
-        print(json.dumps({
-            "error": f"'{args.name}' (level={args.level}) の行政界が見つかりませんでした",
-        }), file=sys.stderr)
+    if "error" in result:
+        print(json.dumps(result, ensure_ascii=False), file=sys.stderr)
         sys.exit(1)
 
-    # load_mask() が受け付ける GeoJSON 形式で出力
     geojson = result["geometry"]
 
     output_str = json.dumps(geojson, ensure_ascii=False, indent=2)

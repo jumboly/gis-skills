@@ -7,7 +7,6 @@ bbox または GeoJSON マスク内にランダムな線分を生成する。
 from __future__ import annotations
 
 import argparse
-import json
 import math
 import os
 import sys
