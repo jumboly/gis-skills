@@ -8,9 +8,9 @@ GIS（地理情報システム）関連タスクを処理する4つの Claude Co
 
 | スキル | ディレクトリ | 主な依存 | 用途 |
 |--------|-------------|----------|------|
-| gis-coord-transform | `gis-coord-transform/` | pyproj, jgdtrans | 座標変換・投影法変換・測地系変換・タイル座標・メッシュコード |
+| gis-coord-transform | `gis-coord-transform/` | pyproj, jgdtrans | 座標変換・投影法変換・測地系変換・地図数理計算 |
 | gis-geocoding | `gis-geocoding/` | requests | 住所・地名→座標、座標→住所（国土地理院API/Nominatim） |
-| gis-spatial-index | `gis-spatial-index/` | h3, openlocationcode, mgrs | Geohash/H3/Plus Code/Quadkey/MGRS/Maidenhead/Morton 空間インデックス |
+| gis-spatial-index | `gis-spatial-index/` | h3, openlocationcode, mgrs | メッシュコード/Geohash/H3/Plus Code/Quadkey/MGRS/Maidenhead/Morton/XYZタイル/空間ID 空間インデックス |
 | gis-elevation | `gis-elevation/` | Pillow, requests | 国土地理院 DEM タイルから標高取得（5m/10mフォールバック）・断面図 |
 
 > **Note:** GIS データ変換（GeoJSON/Shapefile/KML/GeoPackage/CSV 間）はスキル化していない。Claude が geopandas/fiona のコードを直接生成すれば十分なため。
@@ -71,56 +71,3 @@ GIS（地理情報システム）関連タスクを処理する4つの Claude Co
 
 - バージョンは `VERSION` ファイル（ルート直下）で管理する（セマンティックバージョニング）
 - リリース時は `VERSION` と `README.md` のバッジ (`img.shields.io/badge/version-X.Y.Z-blue`) を同時に更新する
-
-## Git Worktree による並行開発
-
-複数スキルを同時に開発する場合、git worktree で各フィーチャーブランチを並行作業する。
-
-### ディレクトリ構成
-
-```
-gis-skills/                                        ← main ブランチ（メインワークツリー）
-├── .claude/
-│   └── worktrees/
-│       ├── feat-gis-elevation/                    ← feat/gis-elevation
-│       ├── feat-gis-geocoding/                    ← feat/gis-geocoding
-│       └── fix-gis-spatial-index/                 ← fix/gis-spatial-index
-```
-
-`.claude/` は `.gitignore` 済みのため、worktree ディレクトリは git に無視される。
-
-### 命名規則
-
-- **worktree ディレクトリ名**: ブランチ名の `/` を `-` に置換（例: `feat/gis-elevation` → `feat-gis-elevation`）
-- **ブランチ名**: `feat/gis-*`、`fix/gis-*` 等のプレフィックス付き
-
-### ワークフロー
-
-```bash
-# 新規ブランチで worktree を作成
-git worktree add .claude/worktrees/feat-gis-elevation -b feat/gis-elevation
-
-# 既存ブランチで worktree を作成
-git worktree add .claude/worktrees/feat-gis-elevation feat/gis-elevation
-
-# worktree 内で作業
-cd .claude/worktrees/feat-gis-elevation
-
-# worktree 内でスキルをテストインストール
-./setup.sh --user
-
-# 一覧確認
-git worktree list
-
-# PR マージ後にクリーンアップ
-git worktree remove .claude/worktrees/feat-gis-elevation
-
-# 不要な worktree 参照を掃除
-git worktree prune
-```
-
-### 注意事項
-
-- メインワークツリー（リポジトリルート）は常に `main` ブランチを維持する
-- 同じブランチを複数の worktree で checkout できない（git の制約）
-- worktree 内で `./setup.sh --user` を実行すると開発版スキルがインストールされる。テスト後は main に戻って `./setup.sh --user` で安定版に戻すこと
