@@ -11,9 +11,9 @@ tools: Bash, Read, Write, Glob
 ### Step 1: 座標系の特定
 
 1. ユーザーの入力から、変換元・変換先の座標系を特定する
-2. EPSG コードが不明な場合は `references/common-epsg-codes.md` を参照
-3. 日本の平面直角座標系の場合は `references/japanese-plane-rect.md` で系番号と EPSG を確認
-4. `scripts/list_systems.py` で座標系を検索することも可能
+2. EPSG コードが不明な場合は `${CLAUDE_SKILL_DIR}/references/common-epsg-codes.md` を参照
+3. 日本の平面直角座標系の場合は `${CLAUDE_SKILL_DIR}/references/japanese-plane-rect.md` で系番号と EPSG を確認
+4. `${CLAUDE_SKILL_DIR}/scripts/list_systems.py` で座標系を検索することも可能
 
 ### Step 2: 変換の実行
 
@@ -29,12 +29,12 @@ x, y = transformer.transform(lon, lat)
 
 **バッチ変換は `scripts/transform_coords.py` を使用:**
 ```bash
-python3 scripts/transform_coords.py --from-epsg 4326 --to-epsg 6677 --input coords.csv --output result.csv
+python3 ${CLAUDE_SKILL_DIR}/scripts/transform_coords.py --from-epsg 4326 --to-epsg 6677 --input coords.csv --output result.csv
 ```
 
 #### B. 測地系変換（旧測地系 ↔ 新測地系）
 
-変換方式の選択は `references/datum-transform.md` を参照。
+変換方式の選択は `${CLAUDE_SKILL_DIR}/references/datum-transform.md` を参照。
 
 **pyproj 標準変換（概算、パラメータファイル不要）:**
 ```python
@@ -43,15 +43,15 @@ transformer = Transformer.from_crs("EPSG:4301", "EPSG:6668", always_xy=True)
 
 **TKY2JGD パラメータ変換（高精度、.par ファイル必要）:**
 ```bash
-python3 scripts/datum_transform.py --method tky2jgd --par-file TKY2JGD.par --input coords.csv
+python3 ${CLAUDE_SKILL_DIR}/scripts/datum_transform.py --method tky2jgd --par-file TKY2JGD.par --input coords.csv
 ```
 
 **PatchJGD 変換（JGD2000 → JGD2011）:**
 ```bash
-python3 scripts/datum_transform.py --method patchjgd --par-file touhokuchihou2011.par --input coords.csv
+python3 ${CLAUDE_SKILL_DIR}/scripts/datum_transform.py --method patchjgd --par-file touhokuchihou2011.par --input coords.csv
 ```
 
-詳細は `references/datum-transform.md` を参照。
+詳細は `${CLAUDE_SKILL_DIR}/references/datum-transform.md` を参照。
 
 ## 地図数理計算
 
@@ -59,35 +59,35 @@ python3 scripts/datum_transform.py --method patchjgd --par-file touhokuchihou201
 
 中心座標、縮尺、ピクセルサイズから bbox を計算:
 ```bash
-python3 scripts/bbox_calc.py --lat 34.7024 --lon 135.4959 --scale 2000 --width 1000 --height 1000
+python3 ${CLAUDE_SKILL_DIR}/scripts/bbox_calc.py --lat 34.7024 --lon 135.4959 --scale 2000 --width 1000 --height 1000
 ```
 
-計算ロジックの詳細は `references/map-math.md` を参照。
+計算ロジックの詳細は `${CLAUDE_SKILL_DIR}/references/map-math.md` を参照。
 
 ### XYZ タイル座標
 
 緯度経度 ↔ タイル番号の相互変換:
 ```bash
-python3 scripts/tile_coords.py --lat 35.6586 --lon 139.7454 --zoom 15
-python3 scripts/tile_coords.py --x 29102 --y 12903 --zoom 15
+python3 ${CLAUDE_SKILL_DIR}/scripts/tile_coords.py --lat 35.6586 --lon 139.7454 --zoom 15
+python3 ${CLAUDE_SKILL_DIR}/scripts/tile_coords.py --x 29102 --y 12903 --zoom 15
 ```
 
 ### メッシュコード
 
 緯度経度 ↔ 標準地域メッシュコードの相互変換:
 ```bash
-python3 scripts/mesh_code.py --lat 35.6586 --lon 139.7454 --level 3
-python3 scripts/mesh_code.py --code 53394525
+python3 ${CLAUDE_SKILL_DIR}/scripts/mesh_code.py --lat 35.6586 --lon 139.7454 --level 3
+python3 ${CLAUDE_SKILL_DIR}/scripts/mesh_code.py --code 53394525
 ```
 
-メッシュコード体系の詳細は `references/map-math.md` を参照。
+メッシュコード体系の詳細は `${CLAUDE_SKILL_DIR}/references/map-math.md` を参照。
 
 ## リファレンス
 
-- `references/japanese-plane-rect.md` — 日本の平面直角座標系19系の定義と EPSG コード
-- `references/common-epsg-codes.md` — よく使う EPSG コード一覧と測地系の関係
-- `references/datum-transform.md` — 測地系変換ガイド（TKY2JGD/PatchJGD の詳細）
-- `references/map-math.md` — 地図数理計算リファレンス（bbox、タイル座標、メッシュコード）
+- `${CLAUDE_SKILL_DIR}/references/japanese-plane-rect.md` — 日本の平面直角座標系19系の定義と EPSG コード
+- `${CLAUDE_SKILL_DIR}/references/common-epsg-codes.md` — よく使う EPSG コード一覧と測地系の関係
+- `${CLAUDE_SKILL_DIR}/references/datum-transform.md` — 測地系変換ガイド（TKY2JGD/PatchJGD の詳細）
+- `${CLAUDE_SKILL_DIR}/references/map-math.md` — 地図数理計算リファレンス（bbox、タイル座標、メッシュコード）
 
 ## 注意事項
 

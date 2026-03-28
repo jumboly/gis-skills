@@ -11,27 +11,27 @@ tools: Bash, Read, Write, Glob
 ### 単一クエリ
 
 ```bash
-python3 scripts/geocode.py --query "東京タワー"
-python3 scripts/geocode.py --query "東京都千代田区永田町1-7-1"
+python3 ${CLAUDE_SKILL_DIR}/scripts/geocode.py --query "東京タワー"
+python3 ${CLAUDE_SKILL_DIR}/scripts/geocode.py --query "東京都千代田区永田町1-7-1"
 ```
 
 全候補を取得する場合:
 ```bash
-python3 scripts/geocode.py --query "東京駅" --all-results
+python3 ${CLAUDE_SKILL_DIR}/scripts/geocode.py --query "東京駅" --all-results
 ```
 
 ### バッチ処理（CSV 入力）
 
 `query` 列を含む CSV ファイルを入力:
 ```bash
-python3 scripts/geocode.py --input addresses.csv --output results.csv
+python3 ${CLAUDE_SKILL_DIR}/scripts/geocode.py --input addresses.csv --output results.csv
 ```
 
 ### サービスの切替
 
 デフォルトは国土地理院（日本国内向け）。海外の地名には Nominatim を使用:
 ```bash
-python3 scripts/geocode.py --query "Eiffel Tower" --service nominatim
+python3 ${CLAUDE_SKILL_DIR}/scripts/geocode.py --query "Eiffel Tower" --service nominatim
 ```
 
 ## 逆ジオコーディング（座標 → 住所）
@@ -39,20 +39,20 @@ python3 scripts/geocode.py --query "Eiffel Tower" --service nominatim
 ### 単一座標
 
 ```bash
-python3 scripts/reverse_geocode.py --lat 35.6586 --lon 139.7454
+python3 ${CLAUDE_SKILL_DIR}/scripts/reverse_geocode.py --lat 35.6586 --lon 139.7454
 ```
 
 ### バッチ処理（CSV 入力）
 
 `lat`, `lon` 列を含む CSV ファイルを入力:
 ```bash
-python3 scripts/reverse_geocode.py --input coords.csv --output addresses.csv
+python3 ${CLAUDE_SKILL_DIR}/scripts/reverse_geocode.py --input coords.csv --output addresses.csv
 ```
 
 ### サービスの切替
 
 ```bash
-python3 scripts/reverse_geocode.py --lat 48.8584 --lon 2.2945 --service nominatim
+python3 ${CLAUDE_SKILL_DIR}/scripts/reverse_geocode.py --lat 48.8584 --lon 2.2945 --service nominatim
 ```
 
 ## Python コードでの利用
@@ -82,7 +82,7 @@ print(f"{results.get('muniCd', '')} {results.get('lv01Nm', '')}")
 
 ## リファレンス
 
-- `references/geocoding-services.md` — 利用可能なサービスの詳細、エンドポイント、制限事項
+- `${CLAUDE_SKILL_DIR}/references/geocoding-services.md` — 利用可能なサービスの詳細、エンドポイント、制限事項
 
 ## 注意事項
 

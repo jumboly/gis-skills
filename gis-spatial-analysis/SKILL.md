@@ -24,7 +24,7 @@ print(f"フィーチャ数: {len(gdf)}")
 ### Step 2: CRS の変換（必要に応じて）
 
 距離・面積を正確に計測するには投影座標系が必要。日本のデータなら平面直角座標系を使用。
-対象地域に応じた系番号は `/gis-coord-transform` の `references/japanese-plane-rect.md` を参照。
+対象地域に応じた系番号は `/Users/masa/.claude/skills/gis-coord-transform/references/japanese-plane-rect.md` を参照。
 
 ```python
 gdf_proj = gdf.to_crs(epsg=6677)  # 例: 平面直角9系（関東）
@@ -32,12 +32,12 @@ gdf_proj = gdf.to_crs(epsg=6677)  # 例: 平面直角9系（関東）
 
 ### Step 3: 空間演算の実行
 
-各演算の詳細は `references/spatial-operations.md` を参照。
+各演算の詳細は `${CLAUDE_SKILL_DIR}/references/spatial-operations.md` を参照。
 
 #### バッファ解析
 
 ```bash
-python3 scripts/buffer_analysis.py --input data.geojson --distance 500 --epsg 6677 --output buffer.geojson
+python3 ${CLAUDE_SKILL_DIR}/scripts/buffer_analysis.py --input data.geojson --distance 500 --epsg 6677 --output buffer.geojson
 ```
 
 または Python コード:
@@ -51,7 +51,7 @@ result.to_file("buffer.geojson", driver="GeoJSON")
 #### オーバーレイ解析
 
 ```bash
-python3 scripts/overlay_analysis.py --input1 a.geojson --input2 b.geojson --operation intersection --output result.geojson
+python3 ${CLAUDE_SKILL_DIR}/scripts/overlay_analysis.py --input1 a.geojson --input2 b.geojson --operation intersection --output result.geojson
 ```
 
 対応演算: `intersection`, `union`, `difference`, `symmetric_difference`
@@ -59,7 +59,7 @@ python3 scripts/overlay_analysis.py --input1 a.geojson --input2 b.geojson --oper
 #### 距離計算
 
 ```bash
-python3 scripts/distance_calc.py --input1 points.geojson --input2 polygons.geojson --mode nearest --output distances.csv
+python3 ${CLAUDE_SKILL_DIR}/scripts/distance_calc.py --input1 points.geojson --input2 polygons.geojson --mode nearest --output distances.csv
 ```
 
 **測地線距離（投影変換なしで正確な距離を求める場合）:**
@@ -85,7 +85,7 @@ gdf_proj["area_ha"] = gdf_proj.area / 10000
 
 ## リファレンス
 
-- `references/spatial-operations.md` — 空間演算の種類、メソッド一覧、注意事項
+- `${CLAUDE_SKILL_DIR}/references/spatial-operations.md` — 空間演算の種類、メソッド一覧、注意事項
 
 ## 重要な注意事項
 
