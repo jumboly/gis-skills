@@ -38,6 +38,8 @@ Claude Code で話しかけるだけで使える:
 - セルの近傍検索、親子セル、境界ポリゴン取得、ポリフィル、コンパクト化
 - 国土地理院 DEM タイルから標高取得（5m/10m DEM 自動フォールバック）
 - 標高断面図データ生成、CSV 一括標高付与
+- ランダムポイント・ライン・ポリゴン生成（bbox / GeoJSON マスク指定、GeoJSON 出力）
+- Overpass API から行政界ポリゴン取得（都道府県・市区町村・町丁目）
 
 ## スキル一覧
 
@@ -47,6 +49,7 @@ Claude Code で話しかけるだけで使える:
 | gis-geocoding | `gis-geocoding/` | requests | 住所・地名→座標、座標→住所 |
 | gis-spatial-index | `gis-spatial-index/` | h3, openlocationcode, mgrs | Geohash/H3/Plus Code/Quadkey/MGRS/Maidenhead/Morton 空間インデックス |
 | gis-elevation | `gis-elevation/` | Pillow, requests | 国土地理院 DEM タイルから標高取得・断面図 |
+| gis-data-gen | `gis-data-gen/` | scipy, shapely | ランダム GIS テストデータ生成・行政界取得 |
 
 ## インストール
 
@@ -90,6 +93,7 @@ Windows (PowerShell):
 | gis-geocoding | requests |
 | gis-spatial-index | h3, openlocationcode, mgrs |
 | gis-elevation | Pillow, requests |
+| gis-data-gen | scipy, shapely |
 
 > **Note:** GIS データ変換（GeoJSON/Shapefile/KML/GeoPackage/CSV 間）はスキル化していない。Claude が geopandas/fiona のコードを直接生成すれば十分なため。
 
@@ -265,6 +269,30 @@ Windows (PowerShell):
 
 ---
 
+### gis-data-gen — GIS テストデータ生成
+
+**ランダムポイント生成**
+
+- 「東京都の範囲にランダムな100個のポイントを生成して」
+- 「この GeoJSON ポリゴン内にクラスター分布で50点を生成して」
+
+**ランダムライン生成**
+
+- 「大阪府の範囲にランダムなラインを20本生成して」
+- 「bbox 指定でランダムウォークのラインを生成して」
+
+**ランダムポリゴン生成**
+
+- 「渋谷区の範囲を Voronoi 分割で10個のポリゴンに分けて」
+- 「この範囲に穴あきポリゴンをランダムに5個生成して」
+
+**行政界ポリゴン取得**
+
+- 「渋谷区の行政界ポリゴンを取得して」
+- 「大阪府の境界ポリゴンを取得して、その中にランダムポイントを生成して」
+
+---
+
 ### 複合ワークフロー例
 
 複数のスキルを組み合わせて使うこともできる:
@@ -298,6 +326,15 @@ Windows (PowerShell):
 **elevation + coord-transform**
 
 - 「この CSV の座標に標高を付与して、平面直角座標系に変換して」
+
+**data-gen + spatial-index**
+
+- 「渋谷区の行政界内にランダムポイントを100個生成して、各ポイントの H3 セルを付与して」
+- 「この範囲にランダムポリゴンを生成して、各ポリゴンの重心の Geohash を求めて」
+
+**data-gen + elevation**
+
+- 「東京都の範囲にランダムポイントを50個生成して、各地点の標高を付与して」
 
 **スキル + Claude 直接処理**
 

@@ -12,6 +12,7 @@ GIS（地理情報システム）関連タスクを処理する4つの Claude Co
 | gis-geocoding | `gis-geocoding/` | requests | 住所・地名→座標、座標→住所（国土地理院API/Nominatim） |
 | gis-spatial-index | `gis-spatial-index/` | h3, openlocationcode, mgrs | メッシュコード/Geohash/H3/Plus Code/Quadkey/MGRS/Maidenhead/Morton/XYZタイル/空間ID 空間インデックス |
 | gis-elevation | `gis-elevation/` | Pillow, requests | 国土地理院 DEM タイルから標高取得（5m/10mフォールバック）・断面図 |
+| gis-data-gen | `gis-data-gen/` | scipy, shapely | ランダム GIS テストデータ生成（ポイント/ライン/ポリゴン）・行政界取得 |
 
 > **Note:** GIS データ変換（GeoJSON/Shapefile/KML/GeoPackage/CSV 間）はスキル化していない。Claude が geopandas/fiona のコードを直接生成すれば十分なため。
 
