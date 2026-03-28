@@ -1,6 +1,6 @@
-# gis-skills ![version](https://img.shields.io/badge/version-0.3.0-blue)
+# gis-skills ![version](https://img.shields.io/badge/version-0.4.0-blue)
 
-> A collection of Claude Code skills for GIS tasks: coordinate transformation, geocoding, and map calculations for Japan and worldwide.
+> A collection of Claude Code skills for GIS tasks: coordinate transformation, geocoding, elevation, and spatial indexing for Japan and worldwide.
 
 GIS（地理情報システム）関連タスクを処理する Claude Code スキル集。自然言語の指示だけで座標変換やジオコーディングを実行できる。
 
@@ -36,6 +36,8 @@ Claude Code で話しかけるだけで使える:
 - CSV 一括バッチ処理、海外対応（Nominatim / OpenStreetMap）
 - 空間インデックス変換（Geohash / H3 / Plus Code / Quadkey / MGRS / Maidenhead / Morton code）
 - セルの近傍検索、親子セル、境界ポリゴン取得、ポリフィル、コンパクト化
+- 国土地理院 DEM タイルから標高取得（5m/10m DEM 自動フォールバック）
+- 標高断面図データ生成、CSV 一括標高付与
 
 ## スキル一覧
 
@@ -44,6 +46,7 @@ Claude Code で話しかけるだけで使える:
 | gis-coord-transform | `gis-coord-transform/` | pyproj, jgdtrans | 座標変換・投影法変換・測地系変換・タイル座標・メッシュコード |
 | gis-geocoding | `gis-geocoding/` | requests | 住所・地名→座標、座標→住所 |
 | gis-spatial-index | `gis-spatial-index/` | h3, openlocationcode, mgrs | Geohash/H3/Plus Code/Quadkey/MGRS/Maidenhead/Morton 空間インデックス |
+| gis-elevation | `gis-elevation/` | Pillow, requests | 国土地理院 DEM タイルから標高取得・断面図 |
 
 ## インストール
 
@@ -86,6 +89,7 @@ Windows (PowerShell):
 | gis-coord-transform | pyproj, jgdtrans |
 | gis-geocoding | requests |
 | gis-spatial-index | h3, openlocationcode, mgrs |
+| gis-elevation | Pillow, requests |
 
 > **Note:** GIS データ変換（GeoJSON/Shapefile/KML/GeoPackage/CSV 間）はスキル化していない。Claude が geopandas/fiona のコードを直接生成すれば十分なため。
 
@@ -241,6 +245,26 @@ Windows (PowerShell):
 
 ---
 
+### gis-elevation — 標高取得
+
+**単一座標の標高取得**
+
+- 「富士山山頂の標高を調べて」
+- 「東京タワーの地点の標高を取得して」
+- 「この座標の 5m メッシュ DEM の標高を教えて」
+
+**CSV 一括標高付与**
+
+- 「この CSV の座標リストに標高を付与して」
+- 「points.csv の各地点の標高を取得して result.csv に保存して」
+
+**標高断面図**
+
+- 「東京駅から新宿駅までの標高断面図のデータを作って」
+- 「この2点間の標高プロファイルを50分割で取得して」
+
+---
+
 ### 複合ワークフロー例
 
 複数のスキルを組み合わせて使うこともできる:
@@ -265,6 +289,15 @@ Windows (PowerShell):
 **3スキル連携**
 
 - 「addresses.csv の住所をジオコーディングして、H3 セル（resolution 8）とメッシュコード（3次メッシュ）を付与して」
+
+**geocoding + elevation**
+
+- 「東京タワーの座標を調べて、その地点の標高を取得して」
+- 「addresses.csv の住所をジオコーディングして、各地点の標高を付与して」
+
+**elevation + coord-transform**
+
+- 「この CSV の座標に標高を付与して、平面直角座標系に変換して」
 
 **スキル + Claude 直接処理**
 
@@ -298,7 +331,7 @@ macOS 標準の Python 3.9 は LibreSSL でビルドされているため、urll
 
 プロキシ環境では自動インストールが失敗する場合があります。事前に手動でインストールしてください:
 ```bash
-pip install pyproj jgdtrans requests h3 openlocationcode mgrs
+pip install pyproj jgdtrans requests h3 openlocationcode mgrs Pillow
 ```
 
 **Nominatim のバッチ処理が遅い**
