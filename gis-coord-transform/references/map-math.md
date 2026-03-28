@@ -170,5 +170,21 @@ def mesh_to_latlon(code):
         lat += int(code[6]) / 120.0
         lon += int(code[7]) / 80.0
 
+    # 1/2, 1/4, 1/8 メッシュ（Level 4-6）
+    # 各レベルで4分割（1:南西, 2:南東, 3:北西, 4:北東）
+    # 緯度・経度の刻み幅を半分にしながら再帰的に位置を特定
+    lat_size = 1.0 / 120.0   # 3次メッシュの緯度幅（30秒 = 1/120度）
+    lon_size = 1.0 / 80.0    # 3次メッシュの経度幅（45秒 = 1/80度）
+
+    for i in range(8, min(len(code), 11)):
+        lat_size /= 2.0
+        lon_size /= 2.0
+        sub = int(code[i])
+        # sub: 1=南西, 2=南東, 3=北西, 4=北東
+        if sub in (3, 4):  # 北側
+            lat += lat_size
+        if sub in (2, 4):  # 東側
+            lon += lon_size
+
     return lat, lon
 ```

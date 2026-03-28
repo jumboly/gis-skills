@@ -4,6 +4,8 @@
 デフォルトは国土地理院 地名検索API（日本国内向け、APIキー不要）。
 --service nominatim で OpenStreetMap Nominatim（世界対応）に切替可能。
 """
+from __future__ import annotations
+
 import argparse
 import csv
 import json
@@ -38,6 +40,8 @@ NOMINATIM_ENDPOINT = "https://nominatim.openstreetmap.org/search"
 
 # Nominatim 利用規約: 1リクエスト/秒以下
 NOMINATIM_DELAY = 1.1
+# GSI バッチ処理時の推奨間隔
+GSI_DELAY = 0.5
 
 
 def _gsi_relevance(name: str, query: str) -> tuple[int, int]:
@@ -133,7 +137,7 @@ def main():
 
         elif args.input:
             all_results = []
-            with open(args.input, encoding="utf-8") as f:
+            with open(args.input, encoding="utf-8-sig") as f:
                 reader = csv.DictReader(f)
                 if "query" not in reader.fieldnames:
                     print(
@@ -150,8 +154,8 @@ def main():
                         all_results.append(hits[0])
                     else:
                         all_results.append({"query": q, "name": None, "lat": None, "lon": None})
-                    if args.service == "nominatim":
-                        time.sleep(NOMINATIM_DELAY)
+                    delay = NOMINATIM_DELAY if args.service == "nominatim" else GSI_DELAY
+                    time.sleep(delay)
 
             if args.output:
                 with open(args.output, "w", encoding="utf-8", newline="") as f:

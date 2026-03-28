@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """座標変換スクリプト - pyproj を使ったバッチ座標変換"""
+from __future__ import annotations
 
 import argparse
 import csv

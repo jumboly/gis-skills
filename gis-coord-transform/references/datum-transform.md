@@ -83,6 +83,22 @@ with open("touhokuchihou2011.par") as f:
 result = tf.forward(jgdtrans.Point(lat=38.0, lon=140.0, alt=0))
 ```
 
+### 4. SemiDynaEXE（セミ・ダイナミック補正）
+
+地殻変動が継続する日本列島で、測量時点の座標を JGD2011 の元期（2011.0）に補正する手法。PatchJGD が2011年東北地震の離散的な変動を補正するのに対し、SemiDynaEXE は継続的なプレート運動による年々の変動を補正する。
+
+```python
+with open("SemiDyna2024.par") as f:
+    tf = jgdtrans.load(f, format="SemiDynaEXE")
+
+# 観測時点の座標を元期に補正
+result = tf.forward(jgdtrans.Point(lat=35.0, lon=135.0, alt=0))
+```
+
+- **用途**: 測量級の高精度座標管理（GNSS 基線解析結果の補正等）
+- **パラメータ**: 国土地理院が毎年更新（SemiDyna20XX.par）
+- **jgdtrans**: `format="SemiDynaEXE"` で読み込み可能
+
 ## パラメータファイルのダウンロード先
 
 - **TKY2JGD**: https://www.gsi.go.jp/sokuchikijun/tky2jgd_download.html

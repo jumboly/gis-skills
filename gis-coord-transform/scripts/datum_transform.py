@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """測地系変換スクリプト - pyproj 標準変換および TKY2JGD/PatchJGD パラメータファイル対応"""
+from __future__ import annotations
 
 import argparse
 import csv

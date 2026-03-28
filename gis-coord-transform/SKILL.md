@@ -1,6 +1,6 @@
 ---
 name: gis-coord-transform
-description: "座標変換・投影法変換・測地系変換・地図数理計算スキル。EPSG コード間の座標変換、WGS84/JGD2000/JGD2011/UTM/平面直角座標系の変換、旧測地系（Tokyo Datum）と新測地系の変換（pyproj 標準変換および TKY2JGD/PatchJGD パラメータファイルによる高精度変換）を行う。また bbox 計算（中心座標+縮尺+ピクセル数→緯度経度範囲）、XYZ タイル座標変換、標準地域メッシュコード変換にも対応。ユーザーが座標変換、投影変換、EPSG、測地系、平面直角座標系、UTMゾーン、WGS84、JGD2011、旧測地系、新測地系、TKY2JGD、PatchJGD、bbox、縮尺計算、タイル座標、メッシュコードについて言及した場合にこのスキルを使用する。"
+description: "座標変換・投影法変換・測地系変換・地図数理計算スキル。EPSG コード間の座標変換、WGS84/JGD2000/JGD2011/UTM/平面直角座標系の変換、旧測地系（Tokyo Datum）と新測地系の変換（pyproj 標準変換および TKY2JGD/PatchJGD パラメータファイルによる高精度変換）を行う。また bbox 計算（中心座標+縮尺+ピクセル数→緯度経度範囲）、XYZ タイル座標変換、標準地域メッシュコード変換にも対応。ユーザーが座標変換、投影変換、EPSG、測地系、平面直角座標系、UTMゾーン、WGS84、JGD2011、旧測地系、新測地系、TKY2JGD、PatchJGD、bbox、縮尺計算、タイル座標、メッシュコード、緯度経度、度分秒、DMS、Web Mercator、ウェブメルカトル、地理院タイル、座標系について言及した場合にこのスキルを使用する。"
 tools: Bash, Read, Write, Glob
 ---
 

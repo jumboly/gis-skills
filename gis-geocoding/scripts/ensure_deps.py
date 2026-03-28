@@ -5,7 +5,6 @@ import sys
 import json
 
 REQUIRED = {
-    "geopy": "geopy",
     "requests": "requests",
 }
 

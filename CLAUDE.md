@@ -9,7 +9,7 @@ GIS（地理情報システム）関連タスクを処理する2つの Claude Co
 | スキル | ディレクトリ | 主な依存 | 用途 |
 |--------|-------------|----------|------|
 | gis-coord-transform | `gis-coord-transform/` | pyproj, jgdtrans | 座標変換・投影法変換・測地系変換・タイル座標・メッシュコード |
-| gis-geocoding | `gis-geocoding/` | geopy, requests | 住所・地名→座標、座標→住所（国土地理院API/Nominatim） |
+| gis-geocoding | `gis-geocoding/` | requests | 住所・地名→座標、座標→住所（国土地理院API/Nominatim） |
 
 > **Note:** GIS データ変換（GeoJSON/Shapefile/KML/GeoPackage/CSV 間）はスキル化していない。Claude が geopandas/fiona のコードを直接生成すれば十分なため。
 

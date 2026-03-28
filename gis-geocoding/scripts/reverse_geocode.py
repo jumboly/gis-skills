@@ -37,6 +37,8 @@ GSI_REVERSE_ENDPOINT = "https://mreversegeocoder.gsi.go.jp/reverse-geocoder/LonL
 NOMINATIM_REVERSE_ENDPOINT = "https://nominatim.openstreetmap.org/reverse"
 
 NOMINATIM_DELAY = 1.1
+# GSI バッチ処理時の推奨間隔
+GSI_DELAY = 0.5
 
 
 def reverse_geocode_gsi(lat: float, lon: float) -> dict:
@@ -49,7 +51,7 @@ def reverse_geocode_gsi(lat: float, lon: float) -> dict:
     resp.raise_for_status()
     data = resp.json()
     results = data.get("results", {})
-    muniCd = results.get("mupiCd", "") or results.get("muniCd", "")
+    muniCd = results.get("muniCd", "")
     lv01Nm = results.get("lv01Nm", "")
     return {
         "lat": lat,
@@ -122,7 +124,7 @@ def main():
 
         elif args.input:
             all_results = []
-            with open(args.input, encoding="utf-8") as f:
+            with open(args.input, encoding="utf-8-sig") as f:
                 reader = csv.DictReader(f)
                 if "lat" not in reader.fieldnames or "lon" not in reader.fieldnames:
                     print(
@@ -142,8 +144,8 @@ def main():
                         continue
                     result = reverse_fn(lat, lon)
                     all_results.append(result)
-                    if args.service == "nominatim":
-                        time.sleep(NOMINATIM_DELAY)
+                    delay = NOMINATIM_DELAY if args.service == "nominatim" else GSI_DELAY
+                    time.sleep(delay)
 
             if args.output:
                 fieldnames = list(all_results[0].keys()) if all_results else ["lat", "lon", "address"]
